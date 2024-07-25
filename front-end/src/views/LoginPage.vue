@@ -21,27 +21,53 @@
           <input type="password" id="password" v-model="password" placeholder="Digite sua senha" required />
           <a href="#" class="forgot-password">Esqueceu sua senha?</a>
         </div>
+        <div v-if="errorMsg" class="error-message">
+          {{ errorMsg }}
+        </div>
         <button type="submit" class="login-btn">Entrar</button>
       </form>
     </div>
   </div>
 </template>
+// src/views/LoginPage.vue
 <script>
+import axios from '../axios/axios';
+import router from '../router';
+
 export default {
   data() {
     return {
+      errorMsg: '',
       email: '',
       password: ''
-    }
+    };
   },
   methods: {
-    login() {
-      // Handle the login logic here
-      console.log('Logging in with', this.email, this.password);
+    async login() {
+      try {
+        const response = await axios.get('/login', {
+          params: {
+            email: this.email,
+            password: this.password
+          },
+        });
+        if (response.status === 200) {
+          router.push('/home');
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 500) {
+          this.errorMsg = 'Usuário ou senha inválidos. Tente novamente.';
+        } else {
+          this.errorMsg = 'Erro interno do servidor. Tente novamente mais tarde.';
+        }
+        console.error('Erro durante o login:', error);
+      }
     }
   }
 }
 </script>
+
+
 <style scoped>
 .login-container {
   display: flex;
@@ -160,5 +186,12 @@ input {
 .login-btn:disabled {
   background: #ddd;
   cursor: not-allowed;
+}
+
+.error-message {
+  width: 80%;
+  height: 60px;
+  padding: 30px;
+  color: red;
 }
 </style>
