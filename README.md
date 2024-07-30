@@ -5,20 +5,23 @@
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Run Front End
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Set path
 ```
-npm run build
+set PYTHONPATH=C:\projetos\chat-bot-alb\backend
+
 ```
 
-### Lints and fixes files
+### Run Back End
 ```
-npm run lint
+uvicorn app.main:app --reload
+
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+
+### Obs
+Use Venv and check your path
