@@ -13,6 +13,7 @@
 
 <script>
 import MessageBubble from "./MessageBubble.vue";
+import axios from '../axios/axios';
 
 export default {
   components: { MessageBubble },
@@ -23,9 +24,29 @@ export default {
         { id: 2, text: "Oi! Tudo bem?", time: "09:22", sent: false },
       ],
       newMessage: "",
+      number: "5511937590095"
     };
   },
   methods: {
+    async endPoint() {
+      try {
+        const response = await axios.post('/chat', {
+          number: this.number,
+          textMessage: { text: this.newMessage }
+        });
+        if (response.status === 200) {
+          this.sendMessage();
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 500) {
+          this.errorMsg = 'Erro ao enviar a mensagem. Tente novamente.';
+        } else {
+          this.errorMsg = 'Erro interno do servidor. Tente novamente mais tarde.';
+        }
+        console.error('Erro durante o envio:', error);
+      }
+    },
+    
     sendMessage() {
       if (this.newMessage.trim() !== "") {
         this.messages.push({
@@ -34,9 +55,10 @@ export default {
           time: new Date().toLocaleTimeString().slice(0, 5),
           sent: true,
         });
+        this.endPoint();  // Chama o endPoint aqui
         this.newMessage = "";
       }
-    },
+    }
   },
 };
 </script>
