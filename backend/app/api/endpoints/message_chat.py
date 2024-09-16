@@ -21,7 +21,7 @@ async def message(request: MessageRequest):
         api_request = ApiRequest()
         response_data = api_request.send_messages(request.number, request.textMessage.text)
         
-        resgister_contact('paulo', request.number)
+        resgister_contact('paulo', request.number) # ALTERAR O NOME
         
         contact_ids = location_contacts(int(request.number))
         if not contact_ids:
