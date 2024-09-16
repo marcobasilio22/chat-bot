@@ -1,7 +1,7 @@
 from app.core.database import get_connection
 from datetime import datetime
 
-def store_conversation(customer_id, message, type_message, date_send=None):
+def store_conversation(customer_id, message, type_message, date_message=None):
     conn = get_connection()
     if conn is None:
         return False
@@ -9,17 +9,17 @@ def store_conversation(customer_id, message, type_message, date_send=None):
     try:
         cursor = conn.cursor()
 
-        if date_send is None:
-            date_send = datetime.now()
+        if date_message is None:
+            date_message = datetime.now()
 
         if not isinstance(customer_id, int):
             raise ValueError("customer_id deve ser um inteiro")
         
         query = """
-        INSERT INTO conversations (customer_id, message, type_message, date_send)
+        INSERT INTO conversations (customer_id, message, type_message, date_message)
         VALUES (%s, %s, %s, %s)
         """
-        cursor.execute(query, (customer_id, message, type_message, date_send))
+        cursor.execute(query, (customer_id, message, type_message, date_message))
         conn.commit()
         return True
     except Exception as e:
