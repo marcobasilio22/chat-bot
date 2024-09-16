@@ -31,40 +31,40 @@
 </template>
 // src/views/LoginPage.vue
 <script>
-import axios from '../axios/axios';
-import router from '../router';
+  import axios from '../axios/axios';
+  import router from '../router';
 
-export default {
-  data() {
-    return {
-      errorMsg: '',
-      email: '',
-      password: ''
-    };
-  },
-  methods: {
-    async login() {
-      try {
-        const response = await axios.get('/login', {
-          params: {
-            email: this.email,
-            password: this.password
-          },
-        });
-        if (response.status === 200) {
-          router.push('/home');
+  export default {
+    data() {
+      return {
+        errorMsg: '',
+        email: '',
+        password: ''
+      };
+    },
+    methods: {
+      async login() {
+        try {
+          const response = await axios.get('/login', {
+            params: {
+              email: this.email,
+              password: this.password
+            },
+          });
+          if (response.status === 200) {
+            router.push('/home');
+          }
+        } catch (error) {
+          if (error.response && error.response.status === 500) {
+            this.errorMsg = 'Usuário ou senha inválidos. Tente novamente.';
+          } else {
+            this.errorMsg = 'Erro interno do servidor. Tente novamente mais tarde.';
+          }
+          console.error('Erro durante o login:', error);
         }
-      } catch (error) {
-        if (error.response && error.response.status === 500) {
-          this.errorMsg = 'Usuário ou senha inválidos. Tente novamente.';
-        } else {
-          this.errorMsg = 'Erro interno do servidor. Tente novamente mais tarde.';
-        }
-        console.error('Erro durante o login:', error);
       }
     }
   }
-}
 </script>
 
 

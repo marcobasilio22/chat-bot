@@ -1,23 +1,18 @@
-import mysql.connector
+import psycopg2
+from psycopg2 import OperationalError
 
 config = {
-    'user': 'root',
-    'password': 'M@rco1234',
+    'user': 'postgres',
+    'password': 'P@ss1234',
     'host': 'localhost',
-    'database': 'chatbotalb',
-    'raise_on_warnings': True
+    'port': '5432',
+    'database': 'postgres'
 }
 
-def connection():
+def get_connection():
     try:
-        conn = mysql.connector.connect(**config)
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users")
-        results = cursor.fetchall()
-        return results
-    except mysql.connector.Error as err:
-        print(f"Erro de MySQL: {err}")
+        conn = psycopg2.connect(**config)
+        return conn
+    except OperationalError as err:
+        print(f"Erro de PostgreSQL: {err}")
         return None
-    finally:
-        cursor.close()
-        conn.close()

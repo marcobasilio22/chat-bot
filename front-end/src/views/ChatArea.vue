@@ -6,37 +6,74 @@
       </div>
     </div>
     <div class="input-area">
-      <input type="text" v-model="newMessage" placeholder="Digite uma mensagem" @keyup.enter="sendMessage" />
+      <input
+        type="text"
+        v-model="newMessage"
+        placeholder="Digite uma mensagem"
+        @keyup.enter="sendMessage"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import MessageBubble from "./MessageBubble.vue";
+import axios from '../axios/axios';
 
 export default {
   components: { MessageBubble },
   data() {
     return {
-      messages: [
-        { id: 1, text: "Oi!", time: "09:21", sent: true },
-        { id: 2, text: "Oi! Tudo bem?", time: "09:22", sent: false },
-      ],
+      messages: [], 
       newMessage: "",
+      number: "5511937590095", 
+      errorMsg: "" 
     };
   },
+  async created() {
+    await this.fetchMessages();
+  },
   methods: {
-    sendMessage() {
-      if (this.newMessage.trim() !== "") {
-        this.messages.push({
-          id: this.messages.length + 1,
-          text: this.newMessage,
-          time: new Date().toLocaleTimeString().slice(0, 5),
-          sent: true,
-        });
-        this.newMessage = "";
+    async fetchMessages() {
+      try {
+        const response = await axios.get(`/messages/${this.number}`);
+        this.messages = response.data.messages;
+      } catch (error) {
+        console.error('Erro ao buscar mensagens:', error);
+        this.errorMsg = 'Erro ao buscar mensagens. Tente novamente.';
       }
     },
+    
+    async endPoint() {
+      try {
+        const response = await axios.post('/chat', {
+          number: this.number,
+          textMessage: { text: this.newMessage }
+        });
+        if (response.status === 200) {
+          this.messages.push({
+            id: this.messages.length + 1,
+            text: this.newMessage,
+            time: new Date().toLocaleTimeString().slice(0, 5),
+            sent: true
+          });
+          this.newMessage = "";
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 500) {
+          this.errorMsg = 'Erro ao enviar a mensagem. Tente novamente.';
+        } else {
+          this.errorMsg = 'Erro interno do servidor. Tente novamente mais tarde.';
+        }
+        console.error('Erro durante o envio:', error);
+      }
+    },
+    
+    sendMessage() {
+      if (this.newMessage.trim() !== "") {
+        this.endPoint();
+      }
+    }
   },
 };
 </script>
