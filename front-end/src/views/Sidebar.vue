@@ -20,7 +20,7 @@ export default {
   data() {
     return {
       chats: [
-        { id: 1, name: "Maria", lastMessage: "Oi!", lastTime: "09:21", avatar: "avatar.jpg" }
+        { id: 1, name: "Teste", lastMessage: " ", lastTime: "09:21", avatar: "avatar.jpg" }
       ],
     };
   },

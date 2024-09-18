@@ -1,5 +1,7 @@
 from app.core.database import get_connection
 from datetime import datetime
+import sys
+print(sys.path)
 
 def store_conversation(customer_id, message, type_message, date_message=None):
     conn = get_connection()

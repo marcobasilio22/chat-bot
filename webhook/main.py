@@ -1,10 +1,12 @@
 import sys
 sys.path.append('/home/marco/Estudo/chat-bot-alb/backend')
+from app.core.conv_database import store_conversation, location_contacts
 from fastapi import FastAPI, Request, HTTPException
-from backend.app.core.conv_database import store_conversation, location_contacts
-import json
+
 
 app = FastAPI()
+
+
 
 @app.post("/webhook")
 async def receive_whatsapp_message(request: Request):

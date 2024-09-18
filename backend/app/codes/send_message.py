@@ -16,7 +16,7 @@ class ApiRequest:
             raise
 
     def create_payload(self, number, message):
-        url = "http://localhost:9090/message/sendText/Marco"
+        url = "http://localhost:9090/message/sendText/BotWhatsapp"
 
         headers = {
             'apikey': f'{self.access_token}',
