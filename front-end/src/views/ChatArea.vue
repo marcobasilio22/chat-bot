@@ -27,18 +27,11 @@ export default {
       messages: [], 
       newMessage: "",
       number: "5511937590095", 
-      errorMsg: "",
-      socket: null,
+      errorMsg: "" 
     };
   },
   async created() {
     await this.fetchMessages();
-    this.setupWebSocket();
-  },
-  beforeUnmount() { // Atualizado para beforeUnmount
-    if (this.socket) {
-      this.socket.close();
-    }
   },
   methods: {
     async fetchMessages() {
@@ -49,32 +42,6 @@ export default {
         console.error('Erro ao buscar mensagens:', error);
         this.errorMsg = 'Erro ao buscar mensagens. Tente novamente.';
       }
-    },
-    
-    setupWebSocket() {
-      this.socket = new WebSocket("ws://localhost:8000/ws/chat");
-
-      this.socket.onmessage = (event) => {
-        const message = event.data;
-        this.messages.push({
-          id: this.messages.length + 1,
-          text: message,
-          time: new Date().toLocaleTimeString().slice(0, 5),
-          sent: false
-        });
-      };
-
-      this.socket.onopen = () => {
-        console.log("Conexão WebSocket estabelecida.");
-      };
-
-      this.socket.onerror = (error) => {
-        console.error("Erro na conexão WebSocket:", error);
-      };
-
-      this.socket.onclose = () => {
-        console.log("Conexão WebSocket fechada.");
-      };
     },
     
     async endPoint() {
