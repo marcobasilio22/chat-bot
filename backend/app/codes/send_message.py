@@ -26,7 +26,7 @@ class ApiRequest:
         payload = {
             "number": number,
             "textMessage": {
-                "text": f"{message}."
+                "text": f"{message}"
             }
         }
 

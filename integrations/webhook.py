@@ -1,13 +1,11 @@
 import sys
-import sys
+import requests
 sys.path.append('/home/marco/Estudo/chat-bot-alb/backend')
-import json
+
 from fastapi import FastAPI, Request, HTTPException
 from app.core.conv_database import store_conversation, location_contacts
-from websocket_manager import WebSocketManager  # Certifique-se de que o caminho está correto
 
 app = FastAPI()
-websocket_manager = WebSocketManager()
 
 @app.post("/webhook")
 async def receive_whatsapp_message(request: Request):
@@ -22,15 +20,14 @@ async def receive_whatsapp_message(request: Request):
         if not contact_ids:
             raise HTTPException(status_code=404, detail="Contact not found.")
 
-        contact_id = contact_ids[0][0] 
+        contact_id = contact_ids[0][0]
         store_conversation(contact_id, conversation, 'received')
 
         if number and conversation:
             print(f"Número (remoteJid): {number}")
             print(f"Mensagem (conversation): {conversation}")
 
-            # Enviar a mensagem para todos os clientes conectados via WebSocket
-            await websocket_manager.broadcast(f"Mensagem recebida: {conversation}")
+            requests.post('http://localhost:8765/send-webhook-message', json={"message": conversation})
 
         else:
             print("Não foi possível extrair o número ou a mensagem.")
