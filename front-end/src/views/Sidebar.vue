@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar">
     <input type="text" placeholder="Procurar ou começar uma nova conversa" class="search-bar" />
-    <div v-for="chat in chats" :key="chat.id" class="chat-preview">
+    <div v-on:click="onClick(chat.id)" v-for="chat in chats" :key="chat.id" class="chat-preview">
       <img :src="getAvatarSrc(chat.avatar)" alt="avatar" class="avatar" />
       <div class="chat-info">
         <h4>{{ chat.name }}</h4>
@@ -13,14 +13,16 @@
 </template>
 
 <script>
-
+import { EventBus } from '../eventBus';
 import defaultAvatar from '@/assets/avatar.jpg';
 
 export default {
   data() {
     return {
       chats: [
-        { id: 1, name: "Teste", lastMessage: " ", lastTime: "09:21", avatar: "avatar.jpg" }
+        { id: 5511937590095, name: "Pessoal", lastMessage: " ", lastTime: "09:21", avatar: "avatar.jpg" },
+        { id: 5511912246642, name: "Bot ", lastMessage: " ", lastTime: "09:21", avatar: "avatar.jpg" } ,
+        { id: 5519999768346, name: "Lopes ", lastMessage: " ", lastTime: "09:21", avatar: "avatar.jpg" } ,
       ],
     };
   },
@@ -29,10 +31,15 @@ export default {
       return avatar
         ? require(`@/assets/${avatar}`)
         : defaultAvatar; 
+    },
+
+    onClick(id) {
+      EventBus.emit('chatSelected', id);
     }
   }
 };
 </script>
+
 
 <style>
 

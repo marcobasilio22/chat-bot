@@ -19,6 +19,7 @@
 <script>
 import MessageBubble from "./MessageBubble.vue";
 import axios from '../axios/axios';
+import { EventBus } from '../eventBus';
 
 export default {
   components: { MessageBubble },
@@ -26,13 +27,17 @@ export default {
     return {
       messages: [],
       newMessage: "",
-      number: "5511937590095", 
+      number: null, 
       errorMsg: "" 
     };
   },
   async created() {
     await this.fetchMessages();
     this.connectToWebSocket();
+    EventBus.on('chatSelected', (id) => { 
+      this.number = String(id);
+      this.fetchMessages();
+    });
   },
   methods: {
     async fetchMessages() {
@@ -84,7 +89,6 @@ export default {
 
       ws.onmessage = (event) => {
         const message = event.data;
-        console.log("Mensagem recebida do WebSocket:", message);
         this.messages.push({
           id: this.messages.length + 1,
           text: message,
@@ -100,7 +104,11 @@ export default {
       ws.onclose = () => {
         console.log("WebSocket desconectado");
       };
-    }
+    },
+
+    setChatNumber(id) {
+      this.number = id;
+    },
   },
 };
 </script>
