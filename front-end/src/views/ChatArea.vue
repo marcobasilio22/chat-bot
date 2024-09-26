@@ -19,19 +19,25 @@
 <script>
 import MessageBubble from "./MessageBubble.vue";
 import axios from '../axios/axios';
+import { EventBus } from '../eventBus';
 
 export default {
   components: { MessageBubble },
   data() {
     return {
-      messages: [], 
+      messages: [],
       newMessage: "",
-      number: "5511937590095", 
+      number: null, 
       errorMsg: "" 
     };
   },
   async created() {
     await this.fetchMessages();
+    this.connectToWebSocket();
+    EventBus.on('chatSelected', (id) => { 
+      this.number = String(id);
+      this.fetchMessages();
+    });
   },
   methods: {
     async fetchMessages() {
@@ -73,10 +79,40 @@ export default {
       if (this.newMessage.trim() !== "") {
         this.endPoint();
       }
-    }
+    },
+
+    connectToWebSocket() {
+      const ws = new WebSocket("ws://localhost:8765/ws");
+      ws.onopen = () => {
+        console.log("Conectado ao WebSocket");
+      };
+
+      ws.onmessage = (event) => {
+        const message = event.data;
+        this.messages.push({
+          id: this.messages.length + 1,
+          text: message,
+          time: new Date().toLocaleTimeString().slice(0, 5),
+          sent: false
+        });
+      };
+
+      ws.onerror = (error) => {
+        console.error("Erro no WebSocket:", error);
+      };
+
+      ws.onclose = () => {
+        console.log("WebSocket desconectado");
+      };
+    },
+
+    setChatNumber(id) {
+      this.number = id;
+    },
   },
 };
 </script>
+
 
 <style>
 .chat-area {

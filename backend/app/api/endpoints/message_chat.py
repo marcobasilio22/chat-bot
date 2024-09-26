@@ -3,8 +3,6 @@ from pydantic import BaseModel
 from fastapi.responses import JSONResponse
 from app.codes.send_message import ApiRequest
 from app.core.conv_database import store_conversation, location_contacts
-from app.core.contact_database import resgister_contact
-
 
 router = APIRouter()
 
@@ -20,8 +18,6 @@ async def message(request: MessageRequest):
     try:
         api_request = ApiRequest()
         response_data = api_request.send_messages(request.number, request.textMessage.text)
-        
-        resgister_contact('paulo', request.number) # ALTERAR O NOME
         
         contact_ids = location_contacts(int(request.number))
         if not contact_ids:
