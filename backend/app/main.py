@@ -1,9 +1,10 @@
 from fastapi import FastAPI, WebSocket
+from typing import List
 from app.api.endpoints.show_message import router as message_router
 from app.api.endpoints import login_auth
-from fastapi.middleware.cors import CORSMiddleware
+from app.api.endpoints.create_contact import router as contact_router
 from app.api.endpoints.message_chat import router as chat_router
-from typing import List
+from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 
 class ConnectionManager:
@@ -35,6 +36,8 @@ app.add_middleware(
 app.include_router(login_auth.router, prefix="/auth", tags=["auth"])
 app.include_router(message_router, prefix="/api", tags=["message"])
 app.include_router(chat_router, prefix="/api", tags=["chat"])
+app.include_router(contact_router, prefix="/api", tags=["createcontact"])
+
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
