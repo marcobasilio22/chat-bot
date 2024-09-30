@@ -10,7 +10,13 @@
                     <label for="name">Nome:</label>
                     <input type="text" id="name" v-model="name" required />
                     <label for="number">Número:</label>
-                    <input type="text" id="number" v-model="number" required />
+                    <input
+                        type="text"
+                        id="number"
+                        v-model="number"
+                        @focus="setDefaultNumber"
+                        required
+                    />
                     <button type="submit">Criar</button>
                 </form>
             </div>
@@ -26,7 +32,7 @@ export default {
     data() {
         return {
             name: '',
-            number: '' 
+            number: '55' // Define o padrão como "55"
         };
     },
     methods: {
@@ -39,11 +45,8 @@ export default {
                 number: this.number 
             };
             
-            
-
             try {
                 const response = await axios.post('/createcontact', newContact);
-
 
                 if (response.status === 200) {
                     console.log('Novo contato criado:', response.data);
@@ -51,6 +54,12 @@ export default {
                 }
             } catch (error) {
                 console.error('Erro ao criar o contato:', error);
+            }
+        },
+        setDefaultNumber() {
+            // Mantém "55" se o campo estiver vazio
+            if (this.number === '') {
+                this.number = '55';
             }
         }
     }

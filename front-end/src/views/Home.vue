@@ -1,7 +1,7 @@
 <template>
     <div id="home" class="container">
         <div class="bar bar-icons">
-            <a href="#comment" class="icon-link">
+            <a href="/chat" class="icon-link">
                 <i class="fa-regular fa-comment custom-size"></i>
             </a>
             <a href="#ticket" class="icon-link">
