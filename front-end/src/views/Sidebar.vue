@@ -1,13 +1,13 @@
 <template>
   <div class="sidebar">
     <input type="text" placeholder="Procurar ou começar uma nova conversa" class="search-bar" />
-    <div v-on:click="onClick(chat.id)" v-for="chat in chats" :key="chat.id" class="chat-preview">
+    <div v-on:click="onClick(chat.number)" v-for="chat in chats" :key="chat.number" class="chat-preview">
       <img :src="getAvatarSrc(chat.avatar)" alt="avatar" class="avatar" />
       <div class="chat-info">
         <h4>{{ chat.name }}</h4>
-        <p>{{ chat.lastMessage }}</p>
+        <p>{{ chat.lastMessage || 'Nenhuma mensagem ainda' }}</p>
       </div>
-      <span class="time">{{ chat.lastTime }}</span>
+      <span class="time">{{ chat.lastTime || 'Agora' }}</span>
     </div>
     <div class="newcontact" @click="onNewContactClick">
       <img src="@/assets/bottonnew.png" alt="botton of new" width="55" height="auto" />
@@ -21,6 +21,7 @@
 import { EventBus } from '../eventBus';
 import defaultAvatar from '@/assets/avatar.jpg';
 import NewContact from './NewContact.vue'; 
+import axios from '../axios/axios';
 
 export default {
   components: {
@@ -28,29 +29,61 @@ export default {
   },
   data() {
     return {
-      chats: [
-        { id: 5511937590095, name: "Pessoal", lastMessage: " ", lastTime: "09:21", avatar: "avatar.jpg" },
-        { id: 5511912246642, name: "Bot ", lastMessage: " ", lastTime: "09:21", avatar: "avatar.jpg" },
-        { id: 5519999768346, name: "Lopes ", lastMessage: " ", lastTime: "09:21", avatar: "avatar.jpg" },
-      ],
+      chats: [],
+      lastMessages: {},
       showModal: false 
     };
+  },
+  mounted() {
+    this.getContacts();
   },
   methods: {
     getAvatarSrc(avatar) {
       return avatar ? require(`@/assets/${avatar}`) : defaultAvatar;
     },
-    onClick(id) {
-      EventBus.emit('chatSelected', id);
+    onClick(number) {
+      EventBus.emit('chatSelected', number);
     },
     onNewContactClick() {
       this.showModal = true; 
+    },
+    async getContacts() {
+      try {
+        const responseContacts = await axios.get('/listcontact');
+        const contacts = responseContacts.data.data;
+
+        const responseMessages = await axios.get('/lastmessage');
+        const messages = responseMessages.data.data;
+
+        const messageMap = {};
+        const timeMap = {};
+        messages.forEach(msg => {
+          messageMap[msg.customer_id] = msg.message;
+          timeMap[msg.customer_id] = msg.date;
+        });
+
+        this.chats = contacts.map(contact => {
+          const lastMessage = messageMap[contact.id] || '';
+          const lastTime = timeMap[contact.id] || ''; 
+          
+          const formattedTime = lastTime ? new Date(lastTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+          
+          return {
+            number: contact.number,
+            name: contact.name,
+            lastMessage: lastMessage,
+            lastTime: formattedTime, 
+            avatar: 'avatar.jpg'
+          };
+        });
+
+      } catch (error) {
+        console.error("Erro ao obter contatos:", error);
+      }
     }
   }
 };
 </script>
-
-
 
 
 <style>
@@ -65,16 +98,6 @@ export default {
   position: relative;
 }
 
-.sidebar {
-  height: 100vh;
-  width: 30%;
-  background-color: #f0f0f0;
-  padding: 10px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-}
-
 .chat-preview {
   display: flex;
   align-items: flex-start;
@@ -82,7 +105,6 @@ export default {
   cursor: pointer;
   border-bottom: 1px solid #e0e0e0;
   transition: background-color 0.3s;
-
 }
 
 .chat-preview:hover {
@@ -125,6 +147,7 @@ export default {
   white-space: nowrap;
   align-self: flex-start; 
 }
+
 .newcontact {
   position: fixed; 
   bottom: 20px; 
@@ -135,6 +158,4 @@ export default {
   cursor: pointer;
   transition: transform 0.2s ease;
 }
-
-
 </style>

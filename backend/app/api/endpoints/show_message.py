@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from app.core.database import get_connection
 from app.core.conv_database import location_contacts
+from app.core.contacts import show_contacts, last_message
+
 
 router = APIRouter()
 
@@ -48,3 +50,13 @@ def get_messages_from_db(number: str):
 async def get_messages(number: str):
     messages = get_messages_from_db(number)
     return {"messages": messages}
+
+@router.get("/listcontact")
+async def list_contacts():
+    contacts = show_contacts()
+    return {"data": contacts}
+
+@router.get("/lastmessage")
+async def get_last_messages():
+    messages = last_message()
+    return {"data": messages}
