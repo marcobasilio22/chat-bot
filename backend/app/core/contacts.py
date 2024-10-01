@@ -58,7 +58,31 @@ def last_message():
         cursor.close()
         conn.close()
         
+def rename_contact_to_number(number: str, new_name: str):
+    conn = get_connection()
+    if conn is None:
+        return {"error": "Could not establish a database connection."}
 
+    try:
+        cursor = conn.cursor()
+        
+        query = """
+            UPDATE contacts
+            SET name = %s
+            WHERE number = %s;
+        """
+        cursor.execute(query, (new_name, number)) 
+        conn.commit()
+
+        return {"message": f"Contato renomeado para {new_name}"}
+
+    except Exception as e:
+        print(f"Erro ao renomear contato: {e}")
+        return {"error": str(e)}
+    
+    finally:
+        cursor.close()
+        conn.close()
 
 
 

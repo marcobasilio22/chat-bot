@@ -1,7 +1,13 @@
 <template>
   <div class="sidebar">
     <input type="text" placeholder="Procurar ou começar uma nova conversa" class="search-bar" />
-    <div v-on:click="onClick(chat.number)" v-for="chat in chats" :key="chat.number" class="chat-preview">
+    <div 
+      @contextmenu.prevent="handleRightClick($event, chat.number, chat.name)" 
+      v-on:click="onClick(chat.number)" 
+      v-for="chat in chats" 
+      :key="chat.number" 
+      class="chat-preview"
+    >
       <img :src="getAvatarSrc(chat.avatar)" alt="avatar" class="avatar" />
       <div class="chat-info">
         <h4>{{ chat.name }}</h4>
@@ -11,6 +17,23 @@
     </div>
     <div class="newcontact" @click="onNewContactClick">
       <img src="@/assets/bottonnew.png" alt="botton of new" width="55" height="auto" />
+    </div>
+
+    <!-- Modal para renomear contato -->
+    <div v-if="showRenameModal" class="modal">
+      <div class="modal-content">
+        <h3>Renomear Contato</h3>
+        <input type="text" v-model="newName" placeholder="Novo nome" />
+        <button @click="renameContact(selectedNumber, newName)">Renomear</button>
+        <button @click="showRenameModal = false">Cancelar</button>
+      </div>
+    </div>
+
+    <div v-if="showContextMenu" :style="{ top: `${menuY}px`, left: `${menuX}px` }" class="context-menu">
+      <ul>
+        <li @click="deleteContact(selectedNumber)">Deletar Contato</li>
+        <li @click="openRenameForm(selectedNumber, selectedName)">Renomear Contato</li>
+      </ul>
     </div>
     
     <NewContact v-if="showModal" :isVisible="showModal" @close="showModal = false" />
@@ -30,23 +53,90 @@ export default {
   data() {
     return {
       chats: [],
-      lastMessages: {},
-      showModal: false 
+      showModal: false,
+      showContextMenu: false,
+      showRenameModal: false, 
+      menuX: 0,
+      menuY: 0,
+      selectedNumber: null,
+      selectedName: '', 
+      newName: ''  
     };
   },
   mounted() {
     this.getContacts();
+    document.addEventListener('click', this.handleClickOutside);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
   },
   methods: {
+    openRenameForm(number, name) {
+      this.selectedNumber = number;
+      this.selectedName = name;
+      this.newName = name;
+      this.showRenameModal = true; 
+      this.showContextMenu = false;  
+    },
+
+    renameContact(number, newName) {
+      if (newName.trim()) { 
+        this.func_rename_contact(number, newName); 
+        this.showRenameModal = false; 
+      } else {
+        alert("O nome não pode estar vazio."); 
+      }
+    },
+
+    handleRightClick(event, number, name) {
+      event.preventDefault();
+      this.menuX = event.clientX;
+      this.menuY = event.clientY;
+      this.selectedNumber = number;
+      this.selectedName = name;
+      this.showContextMenu = true;
+    },
+    
+    handleClickOutside(event) {
+      const contextMenu = this.$el.querySelector('.context-menu');
+      if (contextMenu && !contextMenu.contains(event.target)) {
+        this.showContextMenu = false;
+        this.showRenameModal = false; 
+      }
+    },
+    
+    deleteContact(number) {
+      this.func_rename_contact(number, number);
+      this.showContextMenu = false; 
+    },
+
+    func_rename_contact(number, newName) {
+      axios.post('/renamecontact', {
+          number: number,
+          new_name: newName
+      })
+      .then(response => {
+          console.log("Contato renomeado com sucesso:", response.data);
+          this.getContacts(); 
+      })
+      .catch(error => {
+          const errorMessage = error.response?.data?.detail || "Erro desconhecido ao renomear contato";
+          console.error("Erro ao renomear contato:", errorMessage);
+      });
+    },
+
     getAvatarSrc(avatar) {
       return avatar ? require(`@/assets/${avatar}`) : defaultAvatar;
     },
+    
     onClick(number) {
       EventBus.emit('chatSelected', number);
     },
+    
     onNewContactClick() {
       this.showModal = true; 
     },
+    
     async getContacts() {
       try {
         const responseContacts = await axios.get('/listcontact');
@@ -65,7 +155,6 @@ export default {
         this.chats = contacts.map(contact => {
           const lastMessage = messageMap[contact.id] || '';
           const lastTime = timeMap[contact.id] || ''; 
-          
           const formattedTime = lastTime ? new Date(lastTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
           
           return {
@@ -73,7 +162,7 @@ export default {
             name: contact.name,
             lastMessage: lastMessage,
             lastTime: formattedTime, 
-            avatar: 'avatar.jpg'
+            avatar: contact.avatar || 'avatar.jpg'
           };
         });
 
@@ -85,18 +174,20 @@ export default {
 };
 </script>
 
-
 <style>
 
 .sidebar {
-  height: 100%;
-  width: 30%; 
+  height: 100vh;
+  width: 30%;
   background-color: #f0f0f0;
   padding: 10px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  position: relative;
+  position: relative; 
+  display: flex;
+  flex-direction: column;
 }
+
 
 .chat-preview {
   display: flex;
@@ -157,5 +248,61 @@ export default {
   justify-content: center;
   cursor: pointer;
   transition: transform 0.2s ease;
+}
+
+.context-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 10px;
+}
+
+.context-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.context-menu li {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.context-menu li:hover {
+  background-color: #f0f0f0;
+}
+
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 300px; /* Ajuste a largura conforme necessário */
+}
+
+.rename-contact-form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.rename-contact-form input {
+  margin-bottom: 5px;
 }
 </style>

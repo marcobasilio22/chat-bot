@@ -1,11 +1,15 @@
 from fastapi import APIRouter, HTTPException
 from app.core.database import get_connection
 from app.core.conv_database import location_contacts
-from app.core.contacts import show_contacts, last_message
-
+from app.core.contacts import show_contacts, last_message, rename_contact_to_number
+from pydantic import BaseModel
 
 router = APIRouter()
 
+class RenameContact(BaseModel):
+    number: str
+    new_name: str
+    
 def get_messages_from_db(number: str):
     connection = get_connection()
     if not connection:
@@ -59,4 +63,13 @@ async def list_contacts():
 @router.get("/lastmessage")
 async def get_last_messages():
     messages = last_message()
+    return {"data": messages}
+
+@router.post("/renamecontact")
+async def post_rename_contact_to_number(contact: RenameContact):
+    messages = rename_contact_to_number(contact.number, contact.new_name)
+    
+    if 'error' in messages:
+        raise HTTPException(status_code=400, detail=messages['error'])
+    
     return {"data": messages}

@@ -32,7 +32,7 @@ export default {
     data() {
         return {
             name: '',
-            number: '55' // Define o padrão como "55"
+            number: '55' 
         };
     },
     methods: {
@@ -40,6 +40,7 @@ export default {
             this.$emit('close');
         },
         async submitForm() {
+
             const newContact = {
                 name: this.name,
                 number: this.number 
@@ -51,13 +52,13 @@ export default {
                 if (response.status === 200) {
                     console.log('Novo contato criado:', response.data);
                     this.closeModal();
+                    location.reload();
                 }
             } catch (error) {
                 console.error('Erro ao criar o contato:', error);
             }
         },
         setDefaultNumber() {
-            // Mantém "55" se o campo estiver vazio
             if (this.number === '') {
                 this.number = '55';
             }
