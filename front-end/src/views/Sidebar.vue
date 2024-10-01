@@ -19,7 +19,6 @@
       <img src="@/assets/bottonnew.png" alt="botton of new" width="55" height="auto" />
     </div>
 
-    <!-- Modal para renomear contato -->
     <div v-if="showRenameModal" class="modal">
       <div class="modal-content">
         <h3>Renomear Contato</h3>
@@ -33,6 +32,7 @@
       <ul>
         <li @click="deleteContact(selectedNumber)">Deletar Contato</li>
         <li @click="openRenameForm(selectedNumber, selectedName)">Renomear Contato</li>
+        <li @click="deleteMessages(selectedNumber)">Deletar Mensagens</li>
       </ul>
     </div>
     
@@ -106,8 +106,27 @@ export default {
     },
     
     deleteContact(number) {
-      this.func_rename_contact(number, number);
-      this.showContextMenu = false; 
+      axios.delete(`/delete_contact/${number}`)
+        .then(response => {
+          console.log(response.data.message);
+          this.getContacts(); 
+        })
+        .catch(error => {
+          const errorMessage = error.response?.data?.detail || "Erro desconhecido ao apagar contato";
+          console.error("Erro ao apagar contato:", errorMessage);
+        });
+    },
+
+    deleteMessages(number) {
+    axios.delete(`/delete_messages/${number}`)
+        .then(response => {
+            console.log(response.data.message);
+            this.getContacts();
+        })
+        .catch(error => {
+            const errorMessage = error.response?.data?.detail || "Erro desconhecido ao apagar mensagens";
+            console.error("Erro ao apagar mensagens:", errorMessage);
+        });
     },
 
     func_rename_contact(number, newName) {

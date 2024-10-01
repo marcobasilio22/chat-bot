@@ -84,6 +84,103 @@ def rename_contact_to_number(number: str, new_name: str):
         cursor.close()
         conn.close()
 
+def get_customer_id_by_number(number: str):
+    conn = get_connection()
+    if conn is None:
+        return {"error": "Could not establish a database connection."}
+
+    try:
+        cursor = conn.cursor()
+        
+        query = """
+            SELECT id FROM contacts
+            WHERE number = %s;
+        """
+        cursor.execute(query, (number,))
+        result = cursor.fetchone()
+
+        if result:
+            return result[0]  
+        else:
+            return {"error": "Contato não encontrado."}
+
+    except Exception as e:
+        print(f"Erro ao buscar customer_id: {e}")
+        return {"error": str(e)}
+    
+    finally:
+        cursor.close()
+        conn.close()
 
 
+def delete_messages_by_number(number: str):
+    customer_id_response = get_customer_id_by_number(number)
+
+    if isinstance(customer_id_response, dict) and "error" in customer_id_response:
+        return customer_id_response 
+    
+    customer_id = customer_id_response  
+
+    conn = get_connection()
+    if conn is None:
+        return {"error": "Could not establish a database connection."}
+
+    try:
+        cursor = conn.cursor()
+        
+        query = """
+            DELETE FROM conversations
+            WHERE customer_id = %s;
+        """
+        cursor.execute(query, (customer_id,))
+        conn.commit()
+
+        return {"message": f"Todas as mensagens do contato {number} foram apagadas."}
+
+    except Exception as e:
+        print(f"Erro ao apagar mensagens: {e}")
+        return {"error": str(e)}
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+def delete_contact_and_messages(number: str):
+    customer_id_response = get_customer_id_by_number(number)
+
+    if isinstance(customer_id_response, dict) and "error" in customer_id_response:
+        return customer_id_response 
+
+    customer_id = customer_id_response  
+
+    conn = get_connection()
+    if conn is None:
+        return {"error": "Could not establish a database connection."}
+
+    try:
+        cursor = conn.cursor()
+
+        delete_messages_query = """
+            DELETE FROM conversations
+            WHERE customer_id = %s;
+        """
+        cursor.execute(delete_messages_query, (customer_id,))
+
+        delete_contact_query = """
+            DELETE FROM contacts
+            WHERE number = %s;
+        """
+        cursor.execute(delete_contact_query, (number,))
+
+        conn.commit()
+
+        return {"message": f"Contato {number} e todas as mensagens foram apagadas."}
+
+    except Exception as e:
+        print(f"Erro ao apagar contato e mensagens: {e}")
+        return {"error": str(e)}
+    
+    finally:
+        cursor.close()
+        conn.close()
 
