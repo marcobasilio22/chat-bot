@@ -174,8 +174,17 @@ export default {
         this.chats = contacts.map(contact => {
           const lastMessage = messageMap[contact.id] || '';
           const lastTime = timeMap[contact.id] || ''; 
-          const formattedTime = lastTime ? new Date(lastTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-          
+          let formattedTime = '';
+          if (lastTime) {
+            const messageDate = new Date(lastTime);
+            const today = new Date();
+
+            if (messageDate.toDateString() === today.toDateString()) {
+              formattedTime = messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            } else {
+              formattedTime = messageDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            }
+          }
           return {
             number: contact.number,
             name: contact.name,
