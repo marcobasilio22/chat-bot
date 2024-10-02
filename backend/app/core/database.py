@@ -3,7 +3,7 @@ from psycopg2 import OperationalError
 
 config = {
     'user': 'postgres',
-    'password': 'P@ss1234',
+    'password': 'teu8s8w0zU7OAdhoM6Uo12zUhz47ALFtF1tGnDs8ouvkHwdLnq',
     'host': 'localhost',
     'port': '5432',
     'database': 'postgres'
