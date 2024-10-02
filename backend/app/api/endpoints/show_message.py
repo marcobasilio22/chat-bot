@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.core.database import get_connection
 from app.core.conv_database import location_contacts
-from app.core.contacts import show_contacts, last_message, rename_contact_to_number
+from app.core.contacts import show_contacts, last_message, rename_contact_to_number, delete_messages_by_number, delete_contact_and_messages
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -73,3 +73,17 @@ async def post_rename_contact_to_number(contact: RenameContact):
         raise HTTPException(status_code=400, detail=messages['error'])
     
     return {"data": messages}
+
+@router.delete("/delete_messages/{number}")
+async def delete_messages_endpoint(number: str):
+    response = delete_messages_by_number(number)
+    if "error" in response:
+        raise HTTPException(status_code=500, detail=response["error"])
+    return response
+
+@router.delete("/delete_contact/{number}")
+async def delete_contact_endpoint(number: str):
+    response = delete_contact_and_messages(number)
+    if "error" in response:
+        raise HTTPException(status_code=500, detail=response["error"])
+    return response
