@@ -1,6 +1,6 @@
 from app.core.database import get_connection
 
-def insert_data(name, number):
+def insert_data(name, number, salved):
     conn = get_connection()
     if conn is None:
         print("Erro ao conectar com o banco de dados.")
@@ -9,10 +9,10 @@ def insert_data(name, number):
         cursor = conn.cursor()
 
         query = """
-            INSERT INTO contacts(name, number)
-            VALUES (%s, %s)
+            INSERT INTO contacts(name, number, salved)
+            VALUES (%s, %s, %s)
             """
-        cursor.execute(query, (name, number))
+        cursor.execute(query, (name, number, salved))
         conn.commit()
         return True    
     

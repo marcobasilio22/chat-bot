@@ -44,5 +44,9 @@ async def websocket_endpoint(websocket: WebSocket):
 async def send_webhook_message_to_frontend(message: Message):
     await manager.broadcast(f"{message.message}")
 
+@app.post("/show-contact")
+async def show_contact_not_salved(name: Name, number:Number):
+    await manager.broadcast()
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8765)

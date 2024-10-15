@@ -4,6 +4,8 @@ sys.path.append('/home/marco/Estudo/chat-bot-alb/backend')
 
 from fastapi import FastAPI, Request, HTTPException
 from app.core.conv_database import store_conversation, location_contacts
+from app.core.register_contact import insert_data
+
 
 app = FastAPI()
 
@@ -18,7 +20,11 @@ async def receive_whatsapp_message(request: Request):
         number = remote_jid[0:13]
         contact_ids = location_contacts(int(number))
         if not contact_ids:
-            raise HTTPException(status_code=404, detail="Contact not found.")
+            print(f"Número (remoteJid): {number}")
+            print(f"Mensagem (conversation): {conversation}")
+            insert_data(number, number, False)
+            
+            request.post('http://localhost:8765/show-contact', number, number)
 
         contact_id = contact_ids[0][0]
         store_conversation(contact_id, conversation, 'received')

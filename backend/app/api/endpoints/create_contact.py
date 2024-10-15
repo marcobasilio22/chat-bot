@@ -11,7 +11,7 @@ class Contact(BaseModel):
 @router.post('/createcontact')
 async def create_contact(contact: Contact):
     try:
-        insert_data(name=contact.name, number=contact.number)
+        insert_data(name=contact.name, number=contact.number, salved=True)
         return {"message": "Contato criado com sucesso", "contact": contact.name}
         
     except Exception as e:

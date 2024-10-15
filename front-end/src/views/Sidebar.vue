@@ -156,6 +156,25 @@ export default {
       this.showModal = true; 
     },
     
+
+    // CONTINUAR A CONFIGURAR O WEBSOCKET
+    connectToWebSocket() {
+      const ws = new WebSocket("ws://localhost:8765/ws");
+      ws.onopen = () => {
+        console.log("Conectado ao WebSocket");
+      };
+
+      ws.onmessage = (event) => {
+        const message = event.data;
+        this.messages.push({
+          id: this.messages.length + 1,
+          text: message,
+          time: new Date().toLocaleTimeString().slice(0, 5),
+          sent: false
+        });
+      };
+    },
+
     async getContacts() {
       try {
         const responseContacts = await axios.get('/listcontact');
