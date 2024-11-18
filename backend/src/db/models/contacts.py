@@ -1,4 +1,4 @@
-from src.db.configs.connection import get_connection
+from db.configs.connection import get_connection
 
 def insert_data(name, number):
     conn = get_connection()

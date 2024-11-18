@@ -1,10 +1,8 @@
 import sys
 import requests
-sys.path.append('/home/marco/Estudo/chat-bot-alb/backend')
-
 from fastapi import FastAPI, Request, HTTPException
-from src.db.models.contacts import location_contacts
-from src.db.models.conversations import store_conversation
+from db.models.contacts import location_contacts
+from db.models.conversations import store_conversation
 
 app = FastAPI()
 
@@ -28,7 +26,7 @@ async def receive_whatsapp_message(request: Request):
             print(f"Número (remoteJid): {number}")
             print(f"Mensagem (conversation): {conversation}")
 
-            requests.post('http://localhost:8765/send-webhook-message', json={"message": conversation})
+            requests.post('http://localhost:8002/send-webhook-message', json={"message": conversation})
 
         else:
             print("Não foi possível extrair o número ou a mensagem.")

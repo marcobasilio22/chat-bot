@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from src.db.models.contacts import insert_data
+from db.models.contacts import insert_data
 
 router = APIRouter()
 

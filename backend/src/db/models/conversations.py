@@ -1,4 +1,4 @@
-from src.db.configs.connection import get_connection
+from db.configs.connection import get_connection
 from datetime import datetime
 import sys
 

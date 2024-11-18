@@ -1,43 +1,14 @@
+import subprocess
+import time
 from fastapi import FastAPI, WebSocket
-from typing import List
-from src.controllers.show_message import router as message_router
-from src.controllers import login_auth as login_auth_router
-from src.controllers.create_contact import router as contact_router
-from src.controllers.message_chat import router as chat_router
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-import asyncio
-
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: List[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
-
-manager = ConnectionManager()
+from typing import List
+from controllers.show_message import router as message_router
+from controllers.login_auth import router as login_auth_router
+from controllers.create_contact import router as contact_router
+from controllers.message_chat import router as chat_router
 
 app = FastAPI()
-
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            await manager.broadcast(f"Mensagem do cliente: {data}")
-    except Exception as e:
-        print(f"Erro: {e}")
-    finally:
-        manager.disconnect(websocket)
 
 def create_app(): 
     app = FastAPI()
@@ -55,8 +26,26 @@ def create_app():
 
     return app
 
-if __name__ == "__main__":
-    host = "localhost"
-    port = 3000
+app = create_app()
 
-    uvicorn.run("main:app", host=host, port=port, reload=True)
+def run_uvicorn_app():
+    subprocess.Popen(["uvicorn", "app:app", "--reload", "--host", "0.0.0.0", "--port", "8000"])
+
+def run_webhook():
+    subprocess.Popen(["uvicorn", "connectors.webhook:app", "--reload", "--host", "0.0.0.0", "--port", "8001"])
+
+def run_websocket():
+    subprocess.Popen(["python3", "connectors/websocket_server.py"])
+
+if __name__ == "__main__":
+    print("Iniciando os serviços...")
+
+    run_uvicorn_app()
+    time.sleep(2) 
+
+    run_webhook()
+    time.sleep(2)
+
+    run_websocket()
+
+    print("Todos os serviços estão rodando.")

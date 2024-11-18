@@ -82,7 +82,7 @@ export default {
     },
 
     connectToWebSocket() {
-      const ws = new WebSocket("ws://localhost:8765/ws");
+      const ws = new WebSocket("ws://localhost:8002/ws");
       ws.onopen = () => {
         console.log("Conectado ao WebSocket");
       };

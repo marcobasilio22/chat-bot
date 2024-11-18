@@ -13,7 +13,7 @@ port: 8080
 
 ### Set path
 ```
-set PYTHONPATH=C:\projetos\chat-bot-alb\backend
+set PYTHONPATH=C:\chat-bot\backend
 ```
 
 ### Run Back End
@@ -35,6 +35,7 @@ ngrok http 8001
 ## Run Websocket
 ```
 python3 websocket_server.py
+port:8002
 ```
 
 ### Obs

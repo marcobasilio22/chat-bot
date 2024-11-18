@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import JSONResponse
-from src.controllers.send_message import ApiRequest
-from src.db.models.conversations import store_conversation
-from src.db.models.contacts import location_contacts
+from controllers.send_message import ApiRequest
+from db.models.conversations import store_conversation
+from db.models.contacts import location_contacts
 
 router = APIRouter()
 

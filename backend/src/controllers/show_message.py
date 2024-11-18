@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from src.db.configs.connection import get_connection
-from src.db.models.conversations import last_message
-from src.db.models.contacts import (
+from db.configs.connection import get_connection
+from db.models.conversations import last_message
+from db.models.contacts import (
     location_contacts,
     show_contacts,
     rename_contact_to_number, 
@@ -21,7 +21,7 @@ def get_messages_from_db(number: str):
     if not connection:
         return []
 
-    contact_ids = location_contacts(int(number))
+    contact_ids = location_contacts(str(number))
     if not contact_ids:
         raise HTTPException(status_code=404, detail="Contact not found.")
     

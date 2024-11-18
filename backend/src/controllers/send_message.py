@@ -4,7 +4,7 @@ import requests
 class ApiRequest:
     def __init__(self):
         try:
-            with open("/home/marco/Estudo/chat-bot-alb/backend/app/datas.yaml", 'r') as file:
+            with open("/home/marco/chat-bot/backend/src/datas.yaml", 'r') as file:
                 self.datas = yaml.safe_load(file)
             
             self.access_token = self.datas['access_token']
@@ -16,7 +16,7 @@ class ApiRequest:
             raise
 
     def create_payload(self, number, message):
-        url = "http://localhost:9090/message/sendText/BotWhatsapp"
+        url = "http://localhost:9090/message/sendText/chat"
 
         headers = {
             'apikey': f'{self.access_token}',

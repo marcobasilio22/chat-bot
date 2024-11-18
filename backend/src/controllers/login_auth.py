@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from src.db.models.conversations import fetch_all_conversations
+from db.models.conversations import fetch_all_conversations
 
 router = APIRouter()
 
