@@ -3,9 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from pydantic import BaseModel
 import uvicorn
-
-class Message(BaseModel):
-    message: str
+import json
 
 class ConnectionManager:
     def __init__(self):
@@ -21,12 +19,19 @@ class ConnectionManager:
         print(f"Cliente desconectado: {websocket.client}")
 
     async def broadcast(self, message: str):
-        print(f"Enviando mensagem: {message}")
         for connection in self.active_connections:
             await connection.send_text(message)
 
 manager = ConnectionManager()
 app = FastAPI()
+
+
+class Message(BaseModel):
+    message: str
+
+class Contact(BaseModel):
+    name: str
+    phone: str
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -43,6 +48,19 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.post("/send-webhook-message")
 async def send_webhook_message_to_frontend(message: Message):
     await manager.broadcast(f"{message.message}")
+
+@app.post("/new_contact")
+async def new_contact(contact: Contact):
+    
+    message = {
+        "type": "new_contact",
+        "contact": {
+            "name": contact.name,
+            "phone": contact.phone
+        }
+    }
+
+    await manager.broadcast(json.dumps(message))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8002)
