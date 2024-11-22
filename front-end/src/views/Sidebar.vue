@@ -66,7 +66,40 @@ export default {
   mounted() {
     this.getContacts();
     document.addEventListener('click', this.handleClickOutside);
-  },
+
+    this.socket = new WebSocket("ws://localhost:8002/ws");
+
+    this.socket.onmessage = (event) => {
+      const messages = JSON.parse(event.data);
+
+      if (messages.type === "new_contact" && messages.contact) {
+          const newContact = messages.contact;
+
+          if (newContact.phone && newContact.name) {
+              this.chats.push({
+                  number: newContact.phone,
+                  name: newContact.name,
+                  lastMessage: '',
+                  lastTime: 'Agora',
+                  avatar: 'avatar.jpg'
+              });
+          }
+      } else {
+          console.log("Tipo de mensagem desconhecida:", messages);
+      }
+    };
+
+    this.socket.onerror = (error) => {
+      console.error("Erro no WebSocket:", error);
+    };
+
+    this.socket.onclose = () => {
+      console.log("WebSocket desconectado.");
+    };
+
+    document.addEventListener('click', this.handleClickOutside);
+    },
+
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
   },
