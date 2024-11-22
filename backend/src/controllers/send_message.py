@@ -36,7 +36,7 @@ class ApiRequest:
         try:
             response = requests.post(url, headers=headers, json=payload)
             
-            if response.status_code == 200:
+            if response.status_code == 201:
                 print('Mensagem enviada com sucesso!')
                 return response.json()
             else:

@@ -28,6 +28,7 @@ export default {
       messages: [],
       newMessage: "",
       number: null, 
+      isChatSelected: false,
       errorMsg: "" 
     };
   },
@@ -88,13 +89,15 @@ export default {
       };
 
       ws.onmessage = (event) => {
-        const message = event.data;
-        this.messages.push({
-          id: this.messages.length + 1,
-          text: message,
-          time: new Date().toLocaleTimeString().slice(0, 5),
-          sent: false
-        });
+        if (this.isChatSelected) {
+          const message = JSON.parse(event.data);
+          this.messages.push({
+            id: this.messages.length + 1,
+            text: message,
+            time: new Date().toLocaleTimeString().slice(0, 5),
+            sent: false
+          });
+        }
       };
 
       ws.onerror = (error) => {
@@ -108,6 +111,8 @@ export default {
 
     setChatNumber(id) {
       this.number = id;
+      this.isChatSelected = true;
+      this.fetchMessages();
     },
   },
 };

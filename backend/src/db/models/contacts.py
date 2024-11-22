@@ -11,10 +11,12 @@ def insert_data(name, number):
         query = """
             INSERT INTO contacts(name, number)
             VALUES (%s, %s)
+            RETURNING id
             """
         cursor.execute(query, (name, number))
+        new_id = cursor.fetchone()[0]
         conn.commit()
-        return True    
+        return new_id   
     
     except Exception as e:
         print(f"Erro ao gravar cliente: {e}")
