@@ -1,7 +1,15 @@
 <template>
   <div class="chat-area">
+    <div class="chat-header">
+      <h3>{{ selectedName || 'Selecione um contato' }}</h3> <!-- Mostra nome do contato ou texto padrão -->
+    </div>
     <div class="messages-container">
-      <div v-for="message in messages" :key="message.id" :class="['message', message.sent ? 'sent' : 'received']">
+      <!-- Exibindo mensagens -->
+      <div 
+        v-for="message in messages" 
+        :key="message.id" 
+        :class="['message', message.sent ? 'sent' : 'received']">
+        <!-- Passando texto e horário para o componente MessageBubble -->
         <MessageBubble :text="message.text" :time="message.time" />
       </div>
     </div>
@@ -10,11 +18,12 @@
         type="text"
         v-model="newMessage"
         placeholder="Digite uma mensagem"
-        @keyup.enter="sendMessage"
+        @keyup.enter="sendMessage" 
       />
     </div>
   </div>
 </template>
+
 
 <script>
 import MessageBubble from "./MessageBubble.vue";
@@ -35,9 +44,11 @@ export default {
   async created() {
     await this.fetchMessages();
     this.connectToWebSocket();
-    EventBus.on('chatSelected', (id) => { 
-      this.number = String(id);
-      this.fetchMessages();
+    EventBus.on('chatSelected', (data) => { 
+    this.number = String(data.number);
+    this.selectedName = data.name;
+    this.fetchMessages();
+
     });
   },
   methods: {
@@ -128,6 +139,16 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  margin: 0;
+  padding: 0;
+}
+
+.chat-header {
+  width: 100%;  
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.6);
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .messages-container {

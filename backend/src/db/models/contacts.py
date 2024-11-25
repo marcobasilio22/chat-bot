@@ -231,3 +231,30 @@ def order_contacts():
     finally:
         cursor.close()
         conn.close()
+        
+        
+def search_contacts(name: str):
+    conn = get_connection()
+    if conn is None:
+        return None
+    
+    try:
+        cursor = conn.cursor()
+        
+        query = """
+                select * from contacts 
+                where name = %s
+                """
+        
+        cursor.execute(query, (str(name),))     
+
+        results = cursor.fetchall()
+        
+        return results 
+    
+    except Exception as e:
+        print(f"Erro ao buscar contatos: {e}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
