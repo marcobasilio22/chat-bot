@@ -7,6 +7,7 @@ from controllers.show_message import router as message_router
 from controllers.login_auth import router as login_auth_router
 from controllers.create_contact import router as contact_router
 from controllers.message_chat import router as chat_router
+from controllers.sidebar import router as sidebar_router
 
 app = FastAPI()
 
@@ -23,6 +24,7 @@ def create_app():
     app.include_router(message_router, prefix="/api", tags=["message"])
     app.include_router(chat_router, prefix="/api", tags=["chat"])
     app.include_router(contact_router, prefix="/api", tags=["createcontact"])
+    app.include_router(sidebar_router, prefix="/api", tags=["sidebar_router"])
 
     return app
 

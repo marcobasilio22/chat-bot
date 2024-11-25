@@ -191,8 +191,8 @@ export default {
     
     async getContacts() {
       try {
-        const responseContacts = await axios.get('/listcontact');
-        const contacts = responseContacts.data.data;
+        const responseContacts = await axios.get('/contact/order');
+        const contacts = responseContacts.data.order;
 
         const responseMessages = await axios.get('/lastmessage');
         const messages = responseMessages.data.data;
@@ -205,9 +205,10 @@ export default {
         });
 
         this.chats = contacts.map(contact => {
-          const lastMessage = messageMap[contact.id] || '';
-          const lastTime = timeMap[contact.id] || ''; 
+          const lastMessage = messageMap[contact[0]] || '';
+          const lastTime = timeMap[contact[0]] || ''; 
           let formattedTime = '';
+          
           if (lastTime) {
             const messageDate = new Date(lastTime);
             const today = new Date();
@@ -218,12 +219,13 @@ export default {
               formattedTime = messageDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             }
           }
+
           return {
-            number: contact.number,
-            name: contact.name,
+            number: contact[2],
+            name: contact[1],
             lastMessage: lastMessage,
             lastTime: formattedTime, 
-            avatar: contact.avatar || 'avatar.jpg'
+            avatar: 'avatar.jpg'
           };
         });
 
