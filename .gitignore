@@ -1,3 +1,4 @@
+# Ignorar arquivos de cache e compilações
 __pycache__/
 *.py[cod]
 *.pyo
@@ -12,28 +13,38 @@ build/
 *.manifest
 *.spec
 
+# Ignorar configurações de IDEs
 .idea/
 .vscode/
 
+# Ignorar bancos de dados
 *.db
 *.sqlite3
 
+# Ignorar arquivos de log
 *.log
 
+# Ignorar bibliotecas compartilhadas
 *.so
 *.dylib
 
+# Ignorar dependências de node.js
 node_modules/
 dist/
-*.log
-*.env
+
+# Ignorar arquivos .env em qualquer diretório
+**/*.env
+!/.env
+# Ignorar arquivos de log específicos do npm/yarn
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Ignorar arquivos de bloqueio de pacotes
 package-lock.json
 yarn.lock
 
+# Ignorar arquivos .env específicos
 *.env.local
 *.env.development.local
 *.env.production.local
-.env

@@ -1,3 +1,9 @@
+-- Comando para deletar a tabela conversations, se existir
+DROP TABLE IF EXISTS conversations;
+
+-- Comando para deletar a tabela contacts, se existir
+DROP TABLE IF EXISTS contacts;
+
 -- Comando para criar a tabela contacts
 CREATE TABLE contacts (
     id SERIAL PRIMARY KEY,
@@ -14,9 +20,3 @@ CREATE TABLE conversations (
     type_message VARCHAR(50) NOT NULL,
     date_message TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- Comando para deletar a tabela conversations
-DROP TABLE IF EXISTS conversations;
-
--- Comando para deletar a tabela contacts
-DROP TABLE IF EXISTS contacts;
