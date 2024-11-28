@@ -1,6 +1,12 @@
 <template>
   <div class="sidebar">
-    <input type="text" placeholder="Procurar ou começar uma nova conversa" class="search-bar" />
+    <input 
+      type="text" 
+      placeholder="Procurar ou começar uma nova conversa" 
+      class="search-bar" 
+      v-model="searchQuery" 
+      @input="searchContacts"
+    />
     <div 
       @contextmenu.prevent="handleRightClick($event, chat.number, chat.name)" 
       v-on:click="onClick(chat.number)" 
@@ -53,6 +59,8 @@ export default {
   data() {
     return {
       chats: [],
+      searchQuery: '',
+      searchResults: [],
       showModal: false,
       showContextMenu: false,
       showRenameModal: false, 
@@ -63,8 +71,8 @@ export default {
       newName: ''  
     };
   },
-  mounted() {
-    this.getContacts();
+  async mounted() {
+    await this.getContacts();
     document.addEventListener('click', this.handleClickOutside);
 
     this.socket = new WebSocket("ws://localhost:8002/ws");
@@ -73,19 +81,19 @@ export default {
       const messages = JSON.parse(event.data);
 
       if (messages.type === "new_contact" && messages.contact) {
-          const newContact = messages.contact;
+        const newContact = messages.contact;
 
-          if (newContact.phone && newContact.name) {
-              this.chats.push({
-                  number: newContact.phone,
-                  name: newContact.name,
-                  lastMessage: '',
-                  lastTime: 'Agora',
-                  avatar: 'avatar.jpg'
-              });
-          }
+        if (newContact.phone && newContact.name) {
+          this.chats.push({
+            number: newContact.phone,
+            name: newContact.name,
+            lastMessage: '',
+            lastTime: 'Agora',
+            avatar: 'avatar.jpg'
+          });
+        }
       } else {
-          console.log("Tipo de mensagem desconhecida:", messages);
+        console.log("Tipo de mensagem desconhecida:", messages);
       }
     };
 
@@ -96,13 +104,12 @@ export default {
     this.socket.onclose = () => {
       console.log("WebSocket desconectado.");
     };
-
-    document.addEventListener('click', this.handleClickOutside);
-    },
+  },
 
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
   },
+
   methods: {
     openRenameForm(number, name) {
       this.selectedNumber = number;
@@ -151,14 +158,14 @@ export default {
     },
 
     deleteMessages(number) {
-    axios.delete(`/delete_messages/${number}`)
+      axios.delete(`/delete_messages/${number}`)
         .then(response => {
-            console.log(response.data.message);
-            this.getContacts();
+          console.log(response.data.message);
+          this.getContacts();
         })
         .catch(error => {
-            const errorMessage = error.response?.data?.detail || "Erro desconhecido ao apagar mensagens";
-            console.error("Erro ao apagar mensagens:", errorMessage);
+          const errorMessage = error.response?.data?.detail || "Erro desconhecido ao apagar mensagens";
+          console.error("Erro ao apagar mensagens:", errorMessage);
         });
     },
 
@@ -182,17 +189,31 @@ export default {
     },
     
     onClick(number) {
-      EventBus.emit('chatSelected', number);
+      const selectedChat = this.chats.find(chat => chat.number === number);
+      const selectedName = selectedChat ? selectedChat.name : '';
+      EventBus.emit('chatSelected', { number, name: selectedName });
     },
     
     onNewContactClick() {
       this.showModal = true; 
     },
     
+    async searchContacts() {
+      try {
+        const response = await axios.get('/contact/search', {
+          params: { name: this.searchQuery }
+        });
+        
+        this.searchResults = response.data.result;
+      } catch (error) {
+        console.error("Erro ao pesquisar contatos:", error);
+      }
+    },
+
     async getContacts() {
       try {
-        const responseContacts = await axios.get('/listcontact');
-        const contacts = responseContacts.data.data;
+        const responseContacts = await axios.get('/contact/order');
+        const contacts = responseContacts.data.order;
 
         const responseMessages = await axios.get('/lastmessage');
         const messages = responseMessages.data.data;
@@ -205,9 +226,10 @@ export default {
         });
 
         this.chats = contacts.map(contact => {
-          const lastMessage = messageMap[contact.id] || '';
-          const lastTime = timeMap[contact.id] || ''; 
+          const lastMessage = messageMap[contact[0]] || '';
+          const lastTime = timeMap[contact[0]] || ''; 
           let formattedTime = '';
+          
           if (lastTime) {
             const messageDate = new Date(lastTime);
             const today = new Date();
@@ -218,12 +240,13 @@ export default {
               formattedTime = messageDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             }
           }
+
           return {
-            number: contact.number,
-            name: contact.name,
+            number: contact[2],
+            name: contact[1],
             lastMessage: lastMessage,
             lastTime: formattedTime, 
-            avatar: contact.avatar || 'avatar.jpg'
+            avatar: 'avatar.jpg'
           };
         });
 

@@ -199,3 +199,62 @@ def location_contacts(number):
     finally:
         cursor.close()
         conn.close()
+
+def order_contacts():
+    conn = get_connection()
+    if conn is None:
+        return None
+    
+    try:
+        cursor = conn.cursor()
+        
+        query = """
+                SELECT c.id, name, number, conv.last_message_date
+                FROM contacts c
+                LEFT JOIN (
+                    SELECT customer_id, MAX(date_message) AS last_message_date
+                    FROM conversations
+                    GROUP BY customer_id
+                ) conv ON c.id = conv.customer_id
+                ORDER BY conv.last_message_date DESC;
+                """
+        
+        cursor.execute(query)        
+
+        results = cursor.fetchall()
+        
+        return results 
+    
+    except Exception as e:
+        print(f"Erro ao organizar contatos: {e}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+        
+        
+def search_contacts(name: str):
+    conn = get_connection()
+    if conn is None:
+        return None
+    
+    try:
+        cursor = conn.cursor()
+        
+        query = """
+                select * from contacts 
+                where name = %s
+                """
+        
+        cursor.execute(query, (str(name),))     
+
+        results = cursor.fetchall()
+        
+        return results 
+    
+    except Exception as e:
+        print(f"Erro ao buscar contatos: {e}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
